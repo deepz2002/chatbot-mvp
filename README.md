@@ -64,7 +64,7 @@ RAG-Chatbot/
 
 ```bash
 # Clone the repository
-git clone <your-repo-url>
+git clone https://github.com/deepz2002/chatbot-mvp.git
 cd RAG-Chatbot
 
 # Create virtual environment
