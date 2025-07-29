@@ -16,7 +16,7 @@ __pycache__/
 .DS_Store
 
 # Chroma DB storage
-chroma_db/
+
 
 # Streamlit cache
 .streamlit/
@@ -29,3 +29,9 @@ chroma_db/
 
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints/
+
+# Streamlit secrets (don't commit actual secrets)
+.streamlit/secrets.toml
+
+# But include the example and config for cloud deployment
+!.streamlit/config.toml
