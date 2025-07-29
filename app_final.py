@@ -23,40 +23,46 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Try importing in order of preference: robust -> cloud -> fallback -> local
+# Try importing in order of preference: safe -> robust -> cloud -> fallback -> local
 try:
-    from rag_agent_robust import get_answer, test_setup, get_system_status
-    VERSION = "robust"
-    st.success("✅ Using robust cloud version with vector database")
+    from rag_agent_safe import get_answer, test_setup, get_system_status
+    VERSION = "safe"
+    st.success("✅ Using ultra-safe version (Direct Google AI)")
 except ImportError as e:
-    st.warning(f"⚠️ Robust version failed: {e}")
+    st.warning(f"⚠️ Safe version failed: {e}")
     try:
-        from rag_agent_cloud import get_answer, test_setup
-        VERSION = "cloud"
-        st.warning("⚠️ Using standard cloud version")
-        # Create dummy status function
-        def get_system_status():
-            return {"mode": "cloud", "status": "limited"}
-    except ImportError as e2:
-        st.warning(f"⚠️ Cloud version failed: {e2}")
+        from rag_agent_robust import get_answer, test_setup, get_system_status
+        VERSION = "robust"
+        st.info("ℹ️ Using robust cloud version with vector database")
+    except ImportError as e:
+        st.warning(f"⚠️ Robust version failed: {e}")
         try:
-            from rag_agent_fallback import get_answer, test_setup, get_system_status
-            VERSION = "fallback"
-            st.info("ℹ️ Using fallback version (text search only)")
-        except ImportError as e3:
-            st.error(f"❌ Fallback version failed: {e3}")
+            from rag_agent_cloud import get_answer, test_setup
+            VERSION = "cloud"
+            st.warning("⚠️ Using standard cloud version")
+            # Create dummy status function
+            def get_system_status():
+                return {"mode": "cloud", "status": "limited"}
+        except ImportError as e2:
+            st.warning(f"⚠️ Cloud version failed: {e2}")
             try:
-                from rag_agent import get_answer
-                VERSION = "local"
-                st.warning("⚠️ Using local version")
-                # Create dummy functions
-                def test_setup():
-                    return True
-                def get_system_status():
-                    return {"mode": "local", "status": "basic"}
-            except ImportError as e4:
-                st.error(f"❌ No working RAG agent found: {e4}")
-                st.stop()
+                from rag_agent_fallback import get_answer, test_setup, get_system_status
+                VERSION = "fallback"
+                st.info("ℹ️ Using fallback version (text search only)")
+            except ImportError as e3:
+                st.error(f"❌ Fallback version failed: {e3}")
+                try:
+                    from rag_agent import get_answer
+                    VERSION = "local"
+                    st.warning("⚠️ Using local version")
+                    # Create dummy functions
+                    def test_setup():
+                        return True
+                    def get_system_status():
+                        return {"mode": "local", "status": "basic"}
+                except ImportError as e4:
+                    st.error(f"❌ No working RAG agent found: {e4}")
+                    st.stop()
 
 # App header
 st.title("🤖 RAG Chatbot")
@@ -90,13 +96,16 @@ with st.sidebar:
     # System information
     st.markdown("## 📊 System Status")
     
-    if VERSION in ["robust", "fallback"]:
+    if VERSION in ["safe", "robust", "fallback"]:
         try:
             status = get_system_status()
             st.markdown(f"**Version:** {VERSION}")
             st.markdown(f"**API Key:** {'✅' if status.get('api_key_present') else '❌'}")
             
-            if VERSION == "robust":
+            if VERSION == "safe":
+                st.markdown(f"**Google AI:** {'✅' if status.get('google_ai_available') else '❌'}")
+                st.markdown(f"**Documents:** {'✅' if status.get('documents_ready') else '❌'}")
+            elif VERSION == "robust":
                 st.markdown(f"**Embedder:** {'✅' if status.get('embedder_ready') else '❌'}")
                 st.markdown(f"**Vector DB:** {'✅' if status.get('vector_db_ready') else '❌'}")
                 st.markdown(f"**AI Agent:** {'✅' if status.get('agent_ready') else '❌'}")
